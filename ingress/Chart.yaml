@@ -1,0 +1,5 @@
+apiVersion: v2
+name: ingress-k8s-app
+description: A Helm chart for ingress-k8s-app
+version: 0.1.0
+appVersion: "1.0.0"

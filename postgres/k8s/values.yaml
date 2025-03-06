@@ -1,0 +1,25 @@
+namespace: prometheus-grafana-k8s
+
+replicaCount: 1
+
+image:
+  repository: postgres
+  tag: "15"
+  
+service:
+  name: postgres-service
+
+env:
+  POSTGRES_DB: people
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: "youpassword"
+
+pgadmin:
+  # Pgadmin access
+  email: "YOUR EMAIL"
+  password: "YOUR PASSWORD"
+  # Postgress access
+  PGHOST: postgres-service
+  PGUSER: postgres
+  PGPASSWORD: "1234"
+  PGDATABASE: people

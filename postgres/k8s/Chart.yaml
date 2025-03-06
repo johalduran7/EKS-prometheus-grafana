@@ -1,0 +1,5 @@
+apiVersion: v2
+name: postgres
+description: Postgres Database for K8s App Demo
+version: 0.1.0
+appVersion: "15.0"

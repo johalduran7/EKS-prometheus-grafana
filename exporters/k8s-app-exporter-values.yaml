@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: k8s-app-monitor
+  namespace: prometheus-grafana-k8s
+  labels:
+    release: k8s-kube-prom-stack # This links it to the Prometheus release
+spec:
+  selector:
+    matchLabels:
+      app: k8s-app
+  endpoints:
+    - port: metrics  # This should match your Service's port name, not just the number
+      path: "/metrics"
+      interval: 30s

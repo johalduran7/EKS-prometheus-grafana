@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgadmin
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pgadmin
+  template:
+    metadata:
+      labels:
+        app: pgadmin
+    spec:
+      containers:
+      - name: pgadmin
+        image: dpage/pgadmin4
+        ports:
+          - containerPort: 80
+        env:
+          - name: PGADMIN_DEFAULT_EMAIL
+            value: {{ .Values.pgadmin.email }}
+          - name: PGADMIN_DEFAULT_PASSWORD
+            value: "{{ .Values.pgadmin.password }}"
+          - name: PGADMIN_CONFIG_SERVER_MODE
+            value: "False"   # Allows us to pre-load connections via servers.json
+        volumeMounts:
+          - name: servers-volume
+            mountPath: /pgadmin4/servers.json
+            subPath: servers.json
+      volumes:
+        - name: servers-volume
+          configMap:
+            name: pgadmin-servers-config

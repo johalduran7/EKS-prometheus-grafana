@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-app
+  namespace: {{ .Values.namespace }}
+  # annotations:
+  #   prometheus.io/scrape: "true"  # Enable scraping
+  #   prometheus.io/port: "3000"     # Port where metrics are exposed
+  #   prometheus.io/path: "/metrics" # Path to metrics endpoint
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: k8s-app #  This binds the Deployment to its Pods
+  template:
+    metadata:
+      labels:
+        app: k8s-app # This label MUST match the Service selector
+      # annotations:
+      #   prometheus.io/scrape: "true"  # Enable scraping
+      #   prometheus.io/port: "3000"     # Port where metrics are exposed
+      #   prometheus.io/path: "/metrics" # Path to metrics endpoint
+    spec:
+      imagePullSecrets:
+        - name: ecr-registry-credentials
+      containers:
+        - name: k8s-app
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            #- containerPort: {{ .Values.container.targetPort }}
+            - name: metrics  # This must match the PodMonitor "port" field
+              containerPort: 3000
+          env:
+            - name: PGHOST
+              value: {{ .Values.env.PGHOST }}
+            - name: PGUSER
+              value: {{ .Values.env.PGUSER }}
+            - name: PGPASSWORD
+              value: "{{ .Values.env.PGPASSWORD }}"
+            - name: PGDATABASE
+              value: {{ .Values.env.PGDATABASE }}
+            - name: PGPORT
+              value: "5432"
+              

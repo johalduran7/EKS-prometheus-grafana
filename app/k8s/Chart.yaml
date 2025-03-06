@@ -1,0 +1,5 @@
+apiVersion: v2
+name: k8s-app
+description: A Helm chart for John Durán's K8s-App Demo
+version: 0.1.0
+appVersion: "1.0.0"
