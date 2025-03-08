@@ -2,10 +2,10 @@ data "aws_vpc" "default" {
   default = true
 }
 
-data "aws_subnets" "subnet_az_a" {
+data "aws_subnets" "eks_subnet" {
   filter {
     name   = "vpc-id"
-    values = [data.aws_vpc.default]
+    values = [data.aws_vpc.default.id]
   }
 
   filter {
@@ -48,7 +48,7 @@ resource "aws_eks_cluster" "eks" {
   role_arn = aws_iam_role.eks_node_role.arn
 
   vpc_config {
-    subnet_ids = [aws_subnet.eks_subnet.id]
+    subnet_ids = data.aws_subnets.eks_subnet.ids
   }
 }
 
@@ -56,7 +56,7 @@ resource "aws_eks_node_group" "eks_nodes" {
   cluster_name    = aws_eks_cluster.eks.name
   node_group_name = "single-node"
   node_role_arn   = aws_iam_role.eks_node_role.arn
-  subnet_ids      = [aws_subnet.eks_subnet.id]
+  subnet_ids      = data.aws_subnets.eks_subnet.ids
   instance_types  = ["t3.medium"]
   scaling_config {
     desired_size = 1
