@@ -8,12 +8,32 @@ This is intended to show how to deploy the same stack on EKS and the provisionin
 
 **Prerequisites:**
 
--   Calculate the resources Minikube along with a hypervisor like VirtualBox or Hyperkit.
--   If you plan to run Minikube on VirtualBox, ensure your virtual machine is configured with a minimum of:
-    - 8GB of RAM
-    - 4 vCPUs
--   AWS CLI (Amazon Web Services Command Line Interface)
--   Terraform
+  - If you have a cluster running locally, like on minikube, you have to check what resources you need on EKS
+    $ docker stats
+    CONTAINER ID   NAME       CPU %     MEM USAGE / LIMIT   MEM %     NET I/O         BLOCK I/O        PIDS
+    b30eae46b085   minikube   130.15%   1.9GiB / 2.148GiB   88.42%    643kB / 537kB   3.01GB / 551MB   995
+
+    - check the current memory limit, and use the thumb rule,if the limit is 2.4 GB, you use ~3-4GB.
+
+  - check the size of the volumes:
+    - $ minikube ssh -- docker system df
+      TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+      Images          50        26        7.881GB   4.5GB (57%)
+      Containers      92        46        72.86kB   34.52kB (47%)
+      Local Volumes   2         2         355.3kB   0B (0%)
+      Build Cache     0         0         0B        0B
+    - 	
+      OS + Kubernetes Overhead	6 GB
+      Your Images + Volumes + Containers	~8 GB
+      Safety Buffer	2 GB
+      Recommended EBS Volume	16 GB
+  - so, the right fit is t3.medium https://aws.amazon.com/ec2/instance-types/
+  - and the EBS 16GB
+
+  - the cost is gonna be like: $0.0434 USD per hour
+
+  - now, the calculation before is just for the worker node, whereas for the control plane node (master) is 0.1 USD in most of the regions.
+  - so the total of the EKS cluster per hour is ~$0.1434 per hour
 
 ## Minikube Setup
 
