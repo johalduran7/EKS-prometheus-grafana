@@ -4,8 +4,6 @@ This project leverages the stack set up on minikube in the project https://githu
 
 This is intended to show how to deploy the same stack on EKS and the provisioning via Terraform.
 
-## EKS Setup
-
 **Prerequisites:**
 
   - If you have a cluster running locally, like on minikube, you have to check what resources you need on EKS
@@ -35,6 +33,19 @@ This is intended to show how to deploy the same stack on EKS and the provisionin
   - now, the calculation before is just for the worker node, whereas for the control plane node (master) is 0.1 USD in most of the regions.
   - so the total of the EKS cluster per hour is ~$0.1434 per hour
 
+
+### Deployments
+
+This project deploys the following components:
+
+-   **Node.js App:** A web application that allows users to upload and retrieve images, utilizing a PostgreSQL database for storage. NOTE: The scope of the project doesn't comprise development skills about the application itself. This is intended to show the configuration of Grafana and Prometheus as well as the configuration to scrape metrics. 
+-   **PostgreSQL:** A robust relational database management system used to persist image data.
+-   **Prometheus:** A powerful monitoring and alerting toolkit that collects metrics from the deployed applications and infrastructure.
+-   **Grafana:** A data visualization and monitoring tool that provides dashboards to visualize metrics collected by Prometheus.
+
+### How to Run
+
+1.  **## EKS Setup:**
   - Deploying EKS using terraform.
     - reference: https://docs.aws.amazon.com/eks/latest/userguide/getting-started-console.html
     - Explanation of the resources deployed:
@@ -59,26 +70,35 @@ This is intended to show how to deploy the same stack on EKS and the provisionin
         ```bash
         terraform apply -auto-approve
         ```
+    - Granting IAM user permissions to see EKS resources
+      - Your IAM user won't have access to EKS resources even if it's the admin. This is because we have to add the user to the configmap aws-auth in the kube-system namespace.
+      - current config of the auth-file
+        ```bash
+        $ kubectl get configmap aws-auth -n kube-system -o yaml
+        apiVersion: v1
+        data:
+          mapRoles: |
+            - groups:
+              - system:bootstrappers
+              - system:nodes
+              rolearn: arn:aws:iam::ACCOUNT_ID:role/eks-node-role
+              username: system:node:{{EC2PrivateDNSName}}
+        kind: ConfigMap
+        metadata:
+          creationTimestamp: "2025-03-09T13:06:05Z"
+          name: aws-auth
+          namespace: kube-system
+          resourceVersion: "831"
+          uid: f5476462-b4dd-4ec5-95af-f7419d2d5525
+        ```
+      
+      - Adding my AWS user to mapUsers:
+        - 
+          $ kubectl edit configmap aws-auth -n kube-system
+
+      - built-in Kubernetes RBAC (Role-Based Access Control)
 
 
-### Deployments
-
-This project deploys the following components:
-
--   **Node.js App:** A web application that allows users to upload and retrieve images, utilizing a PostgreSQL database for storage. NOTE: The scope of the project doesn't comprise development skills about the application itself. This is intended to show the configuration of Grafana and Prometheus as well as the configuration to scrape metrics. 
--   **PostgreSQL:** A robust relational database management system used to persist image data.
--   **Prometheus:** A powerful monitoring and alerting toolkit that collects metrics from the deployed applications and infrastructure.
--   **Grafana:** A data visualization and monitoring tool that provides dashboards to visualize metrics collected by Prometheus.
-
-### How to Run
-
-1.  **Start Minikube:**
-
-    Begin by starting your Minikube cluster:
-
-    ```bash
-    minikube start
-    ```
 
 2.  **Prepare the Node.js Application Image:**
 
