@@ -4,3 +4,6 @@ variable "aws_region" {
 variable "eks_cluster_name" {
   default = "eks-cluster"
 }
+variable "eks_node_group_name" {
+  default = "single-node"
+}
