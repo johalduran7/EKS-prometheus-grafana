@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-app-lb
+  namespace: prometheus-grafana-k8s
+  labels:
+    app: k8s-app-lb
+spec:
+  selector:
+    app: k8s-app  # The selector, it uses the service to know which pod to send the traffic to
+  ports:
+    - name: metrics
+      protocol: TCP
+      port: 80 # This is the service port (what clients use to talk to the service)
+      targetPort: 3000 # This is the container port (the port inside your pod/app)
+  type: LoadBalancer

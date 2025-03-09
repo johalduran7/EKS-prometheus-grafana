@@ -4,17 +4,19 @@ metadata:
   name: k8s-grafana-ingress
   namespace: prometheus-grafana-k8s
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    alb.ingress.kubernetes.io/scheme: internet-facing  # or "internal" if needed
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/group.name: "grafana-group"  # Optional grouping
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
 spec:
-  ingressClassName: nginx
+  ingressClassName: alb  # Set ALB as the ingress class
   rules:
-  - host: johnk8sgrafana.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: k8s-kube-prom-stack-grafana
-            port:
-              number: 80
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana-service  # Ensure this matches your service
+                port:
+                  number: 80

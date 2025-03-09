@@ -201,51 +201,9 @@ This project deploys the following components:
     john@john-VirtualBox:~/prometheus-grafana-k8s$
     ```
 
-7.  **Access the Node.js Application:**
+7.  **Update the Node.js Application:**
 
-    Since the services do not have external IPs by default, you can access the application by forwarding the traffic to your local machine:
-
-    ```bash
-    kubectl port-forward deployment/k8s-app 3000:3000 -n prometheus-grafana-k8s
-    ```
-
-    Then, open your browser and navigate to `http://localhost:3000`.
-
-    Alternatively, you can get the Minikube service URL:
-
-    ```bash
-    minikube service list
-    ```
-
-    And access the service using the URL in your browser.
-
-    Example output:
-
-    ```
-    john@john-VirtualBox:~/prometheus-grafana-k8s$ kubectl get service
-    NAME               TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
-    k8s-app            NodePort    10.96.94.12      <none>        80:32442/TCP   78m
-    postgres-service   ClusterIP   10.107.244.218   <none>        5432/TCP       78m
-    john@john-VirtualBox:~/prometheus-grafana-k8s$ minikube service list
-    |------------------------|------------------------------------|--------------|---------------------------|
-    |       NAMESPACE        |                NAME                | TARGET PORT  |            URL            |
-    |------------------------|------------------------------------|--------------|---------------------------|
-    | default                | kubernetes                         | No node port |                           |
-    | ingress-nginx          | ingress-nginx-controller           | http/80      | [http://192.168.49.2:31532](http://192.168.49.2:31532) |
-    |                        |                                    | https/443    | [http://192.168.49.2:30579](http://192.168.49.2:30579) |
-    | ingress-nginx          | ingress-nginx-controller-admission | No node port |                           |
-    | kube-system            | kube-dns                           | No node port |                           |
-    | prometheus-grafana-k8s | k8s-app                            |           80 | [http://192.168.49.2:32442](http://192.168.49.2:32442) |
-    | prometheus-grafana-k8s | postgres-service                   | No node port |                           |
-    |------------------------|------------------------------------|--------------|---------------------------|
-    john@john-VirtualBox:~/prometheus-grafana-k8s$
-    ```
-
-    As you can see, port 32442 was assigned to Minikube, and the node can be accessed from `http://192.168.49.2:32442` in your local machine's web browser.
-    ![Setup](./resources/nodejs_k8s_app.jpg)
-8.  **Update the Node.js Application:**
-
-    When you make changes to the Node.js application code (`app.js`), rebuild the Docker image and apply the changes using Terraform. Then, restart the deployment:
+    Just in case you have to update the app. You can skip this step. When you make changes to the Node.js application code (`app.js`), rebuild the Docker image and apply the changes using Terraform. Then, restart the deployment:
 
     ```bash
     kubectl rollout restart deployment k8s-app -n prometheus-grafana-k8s
@@ -270,103 +228,8 @@ This project deploys the following components:
 
     At this point, you can view the application, open pgAdmin, and run queries against the database.
 
-9.  **Install and Configure Ingress Controller:**
 
-    Install the Nginx Ingress Controller to expose services externally. Ingress acts as a DNS, routing traffic to internal services based on domain names and paths.
-
-    ```bash
-    minikube addons enable ingress
-    ```
-
-    The Ingress Controller is installed in the `ingress-nginx` namespace.
-
-    ```bash
-    kubectl get namespace
-    kubectl get pod -n ingress-nginx
-    ```
-
-    Example output:
-
-    ```
-    NAME                     STATUS   AGE
-    default                  Active   179d
-
-    NAME                                        READY   STATUS      RESTARTS      AGE
-    ingress-nginx-admission-create-sfxbb        0/1     Completed   0             24h
-    ingress-nginx-admission-patch-kn8pd         0/1     Completed   1             24h
-    ingress-nginx-controller-768f948f8f-x2l2n   1/1     Running     1 (12h ago)   24h
-    ```
-
-    Add the Ingress configuration to `ingress/k8s-app-ingress.yaml`:
-
-    ```yaml
-    apiVersion: networking.k8s.io/v1
-    kind: Ingress
-    metadata:
-      name: k8s-app-ingress
-      namespace: prometheus-grafana-k8s
-      annotations:
-        nginx.ingress.kubernetes.io/rewrite-target: /
-    spec:
-      ingressClassName: nginx
-      rules:
-      - host: johnk8sapp.com
-        http:
-          paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: k8s-app
-                port:
-                  number: 80
-    ```
-
-    Deploy the Ingress resource:
-
-    ```bash
-    helm install k8s-ingress ingress/ -n prometheus-grafana-k8s
-    ```
-
-    Check the IP assigned to the Ingress:
-
-    ```bash
-    minikube service list
-    ```
-
-    Add the domain mappings to your `/etc/hosts` file:
-
-    ```bash
-    echo -e "192.168.49.2\tjohnk8sapp.com" | sudo tee -a /etc/hosts
-    ```
-
-    Now, you can access the application via `http://johnk8sapp.com/`.
-
-    Repeat this for the other GUIs:
-
-    ```bash
-    kubectl get ingress
-    ```
-
-    Example output:
-
-    ```
-    NAME                        CLASS   HOSTS                   ADDRESS        PORTS   AGE
-    k8s-app-ingress             nginx   johnk8sapp.com          192.168.49.2   80      16s
-    k8s-grafana-ingress         nginx   johnk8sgrafana.com      192.168.49.2   80      16s
-    k8s-pgadmin-ingress         nginx   johnk8spgadmin.com      192.168.49.2   80      16s
-    k8s-prometheus-ui-ingress   nginx   johnk8sprometheus.com   192.168.49.2   80      16s
-    ```
-
-    Add the corresponding host entries:
-
-    ```bash
-    echo -e "192.168.49.2\tjohnk8spgadmin.com" | sudo tee -a /etc/hosts
-    echo -e "192.168.49.2\tjohnk8sprometheus.com" | sudo tee -a /etc/hosts
-    echo -e "192.168.49.2\tjohnk8sgrafana.com" | sudo tee -a /etc/hosts
-    ```
-
-10. **Install Prometheus and Grafana:**
+8. **Install Prometheus and Grafana:**
 
     Install the `kube-prometheus-stack` Helm chart:
 
@@ -378,7 +241,7 @@ This project deploys the following components:
 
     The release name `k8s-kube-prom-stack` will be used in the ServiceMonitor for Prometheus to scrape metrics.
 
-11. **Configure Metrics Exporters:**
+9. **Configure Metrics Exporters:**
 
     Configure metrics exporters for PostgreSQL and the Node.js application. There are several ways to export metrics:
 
@@ -464,36 +327,4 @@ This project deploys the following components:
 
     ![Setup](./resources/metrics_k8s-app.jpg)
     
-13. **Install Kubernetes Dashboard:**
-
-
-    Install:
-    ```bash
-    kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
-    ```
-
-    Create Ingress:
-    ```bash
-    kubectl apply -f ingress/templates/k8s-dashboard.yaml -n kubernetes-dashboard
-    ```
-
-    Add the dns rrecord
-    ```bash
-    echo -e "192.168.49.2\tjohnk8sdashboard.com" | sudo tee -a /etc/hosts
-    ```
-
-    Create a TSL:
-    ```bash
-    openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout dashboard.key -out dashboard.crt -subj "/CN=<your-dashboard-domain>/O=<your-organization>"
-    ```
-
-    Create a service account, role, and token:
-    ```bash
-    kubectl create sa kube-ds-admin -n kubernetes-dashboard
-    kubectl create clusterrolebinding kube-ds-admin-role-binding --clusterrole=admin --user=system:serviceaccount:kubernetes-dashboard:kube-ds-admin
-    kubectl create token kube-ds-admin -n kubernetes-dashboard
-    ```
-
-    Access the dashboard on the domain you defined in the ingress. e.g. johnk8sdashboard.com
-
-    ![Setup](./resources/kubernetes-dashboard.jpg)
+10. **Access Resources:**
