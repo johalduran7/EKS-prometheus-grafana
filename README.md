@@ -35,7 +35,31 @@ This is intended to show how to deploy the same stack on EKS and the provisionin
   - now, the calculation before is just for the worker node, whereas for the control plane node (master) is 0.1 USD in most of the regions.
   - so the total of the EKS cluster per hour is ~$0.1434 per hour
 
-## Minikube Setup
+  - Deploying EKS using terraform.
+    - reference: https://docs.aws.amazon.com/eks/latest/userguide/getting-started-console.html
+    - Explanation of the resources deployed:
+      - cluster iam role: aws_iam_role.eks_cluster_role
+        - policies attached: 
+          - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+      - node iam role: aws_iam_role.eks_node_role
+        - policies attached: 
+          - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+          - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+          - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+      - Networking:
+        - default VPC used, for simplicity
+        - NOTE: there should be at least 2 AZs to guarantee fault tolerance.
+      - aws_eks_clustr.eks
+      - aws_eks_node_group.eks_nodes
+      
+    - NOTE: it takes up to 15m
+    - the eks_node_role should allow the node to assum the roles:
+      - "ec2.amazonaws.com","eks.amazonaws.com"
+    - go to the repository ./terraform_eks and apply the changes:
+        ```bash
+        terraform apply -auto-approve
+        ```
+
 
 ### Deployments
 
