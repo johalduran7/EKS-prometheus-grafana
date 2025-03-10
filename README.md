@@ -341,101 +341,124 @@ This project deploys the following components:
 
     ![Setup](./resources/metrics_k8s-app.jpg)
     
-10. **Access Resources:**
-  - Four flavors:
+## 10. Access Resources
 
-      1. Port forward to access locallly. 
-        - just like on minikube:
-          ```bash
-          $ kubectl port-forward svc/<app-service> <external-port>:<servicePor> -n <namespace>
-          $ kubectl port-forward svc/pgadmin-service 9091:80 -n prometheus-grafana-k8s
-          ```
-        - Access on localhost:9091
+There are four ways to access resources in the EKS cluster:
 
-      2. Exposing with a LoadBalancer Service (Public Access)
-        - IMPORTANT NOTE: For every service type:LoadBalancer, a load balacner type Classic will be created on AWS, so, for testing purposes one service is okay. I chose the APP itself.
-        THIS LOAD BALANCER HAS TO BE DELETED BECAUSE IS NOT IN THE TERRAFORM INFRASTRUCTURE.
+### 1. Port Forward to Access Locally
+Just like on Minikube, you can use port forwarding:
+```bash
+kubectl port-forward svc/<app-service> <external-port>:<servicePort> -n <namespace>
+kubectl port-forward svc/pgadmin-service 9091:80 -n prometheus-grafana-k8s
+```
+Access the service on `localhost:9091`.
 
-        - configure a service type:LoadBalancer
-        - run (This service is already up, because the helm chart installed it):
-          ```bash
-          $ kubectl apply -f ./app/k8s/templates/app-service-lb.yaml
-          ```
-        - 
+### 2. Exposing with a LoadBalancer Service (Public Access)
+**IMPORTANT NOTE:** For every service of type `LoadBalancer`, a classic load balancer will be created on AWS. For testing purposes, exposing only one service is recommended. The application itself was chosen.
 
-        - check the external endpoint created:
-          ```bash
-          john@john-VirtualBox:~/EKS-prometheus-grafana$ kubectl get service -n prometheus-grafana-k8s
-          NAME               TYPE           CLUSTER-IP      EXTERNAL-IP                                                               PORT(S)        AGE
-          k8s-app            NodePort       10.100.39.10    <none>                                                                    80:32420/TCP   50m
-          k8s-app-lb         LoadBalancer   10.100.48.133   adbef8db6d3ea4370914e2c22989771a-1791137444.us-east-1.elb.amazonaws.com   80:31949/TCP   3m42s
-          ```
+This load balancer is **not** managed by Terraform and must be deleted manually.
 
-        - access on:
-          http://adbef8db6d3ea4370914e2c22989771a-1791137444.us-east-1.elb.amazonaws.com:80
+- Configure a service with `type: LoadBalancer`.
+- Apply the configuration (this service is already running as it was installed by Helm):
+  ```bash
+  kubectl apply -f ./app/k8s/templates/app-service-lb.yaml
+  ```
+- Check the external endpoint:
+  ```bash
+  kubectl get service -n prometheus-grafana-k8s
+  ```
+  Example output:
+  ```bash
+  NAME               TYPE           CLUSTER-IP      EXTERNAL-IP                                                               PORT(S)        AGE
+  k8s-app            NodePort       10.100.39.10    <none>                                                                    80:32420/TCP   50m
+  k8s-app-lb         LoadBalancer   10.100.48.133   adbef8db6d3ea4370914e2c22989771a-1791137444.us-east-1.elb.amazonaws.com   80:31949/TCP   3m42s
+  ```
+- Access the service at:
+  ```
+  http://adbef8db6d3ea4370914e2c22989771a-1791137444.us-east-1.elb.amazonaws.com:80
+  ```
 
-      3. Exposing with an Ingress Controller
+### 3. Exposing with an Ingress Controller
 
-        - create an IAM Role for the ServiceAccount (different from cluster's):
-          ```bash
-          eksctl create iamserviceaccount  --cluster eks-cluster --namespace kube-system --name aws-load-balancer-controller --attach-policy-arn arn:aws:iam::ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy --approve
-          ```
+- **Create an IAM Role for the ServiceAccount** (different from the cluster IAM role):
+  ```bash
+  eksctl create iamserviceaccount \
+    --cluster eks-cluster \
+    --namespace kube-system \
+    --name aws-load-balancer-controller \
+    --attach-policy-arn arn:aws:iam::ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy \
+    --approve
+  ```
+  **Note:** The `AWSLoadBalancerControllerIAMPolicy` was already created via Terraform.
 
-            NOTE: I already created the custom policy AWSLoadBalancerControllerIAMPolicy via Terraform
+- This command will create a CloudFormation stack and an IAM role:
+  ```bash
+  eksctl-eks-cluster-addon-iamserviceaccount-ku-Role1-qrjksIYLp300
+  ```
 
-          - this command will create a stack in CloudFormation. it creates an IAM role:
-          ```bash
-          eksctl-eks-cluster-addon-iamserviceaccount-ku-Role1-qrjksIYLp300
-          ```
+- **Install AWS Load Balancer Controller (instead of Nginx)**:
+  ```bash
+  helm repo add eks https://aws.github.io/eks-charts
+  helm repo update
 
-        - nginx is no suitable here anymore, we have to install AWS Load Balancer Controller to manage ALBs in EKS.
+  helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+    -n kube-system \
+    --set clusterName=eks-cluster \
+    --set serviceAccount.create=false \
+    --set serviceAccount.name=aws-load-balancer-controller \
+    --set region=us-east-1
+  ```
 
-          - Leverage Helm to install it:
-            ```bash
-            helm repo add eks https://aws.github.io/eks-charts
-            helm repo update
-          
-            helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=eks-cluster --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller --set region=us-east-1
-            ```
+- Ensure **IMDSv2** is set to optional.
+- To refresh the controller deployment:
+  ```bash
+  kubectl rollout restart deployment aws-load-balancer-controller -n kube-system
+  ```
 
-          - The IMDSv2 must be set to optional, check the previous steps. 	
-          - in case you have to refresh the deployment of the controller:
-            ```bash
-            $ kubectl rollout restart deployment aws-load-balancer-controller -n kube-system
-            ```
+- **Tag subnets for ALB discovery**:
+  ```bash
+  aws ec2 create-tags --resources subnet-f5c09ab8 subnet-9631a6c9 \
+    --tags Key=kubernetes.io/role/elb,Value=1
+  ```
 
-        - create tags for your subnets so that the alb controller can discover them.
-          ```bash
-          $ aws ec2 create-tags --resources subnet-f5c09ab8 subnet-9631a6c9  \
-            --tags Key=kubernetes.io/role/elb,Value=1
-          ```
+- **Troubleshoot issues** by checking logs:
+  ```bash
+  kubectl logs -n kube-system -l app.kubernetes.io/name=aws-load-balancer-controller | grep -i error
+  ```
 
-          if you have erros you can troubleshoot by checking the logs in:
-            ```bash
-            $ kubectl logs -n kube-system -l app.kubernetes.io/name=aws-load-balancer-controller | grep -i error
-            ```
+- **Deploy the ingress resource**:
+  ```bash
+  kubectl apply -f ./ingress/templates/k8s-grafana-ingress.yaml -n prometheus-grafana-k8s
+  ```
+
+- **Check the ingress address**:
+  ```bash
+  kubectl get ingress
+  ```
+  Example output:
+  ```bash
+  NAME                  CLASS   HOSTS   ADDRESS                                                                   PORTS   AGE
+  k8s-grafana-ingress   alb     *       k8s-grafanaingressgro-12ecc227c1-2111689879.us-east-1.elb.amazonaws.com   80      2m1s
+  ```
+- Access the service at:
+  ```
+  http://k8s-grafanaingressgro-12ecc227c1-2111689879.us-east-1.elb.amazonaws.com
+  ```
+
+### 4. Using AWS SSM Port Forwarding
+
+**Note:** The SSM Agent must be installed on the EC2 instance.
+
+- Start a session and port forward:
+  ```bash
+  aws ssm start-session --target i-xxxxxxxxxxxxxxxxx
+  kubectl port-forward svc/pgadmin-service 8080:80 -n your-namespace
+  
 
 
-        - Deploy the ingress
-          ```bash
-          $ kubectl apply -f ./ingress/templates/k8s-grafana-ingress.yaml -n prometheus-grafana-k8s
-          ```
+10. **Clean up:**
+  Destroy infrastructure:
+  $ terraform destroy -auto-approve
 
-        - Check the address:
-          ```bash
-          john@john-VirtualBox:~/EKS-prometheus-grafana$ kubectl get ingress
-          NAME                  CLASS   HOSTS   ADDRESS                                                                   PORTS   AGE
-          k8s-grafana-ingress   alb     *       k8s-grafanaingressgro-12ecc227c1-2111689879.us-east-1.elb.amazonaws.com   80      2m1s
-          ```
-
-        - Access on: http://k8s-grafanaingressgro-12ecc227c1-2111689879.us-east-1.elb.amazonaws.com
-
-
-      4. Using AWS SSM Port Forwarding.
-        - NOTE:  you have to install SSM agent on the ec2 then run the following commands:
-        ```bash
-        aws ssm start-session --target i-xxxxxxxxxxxxxxxxx
-        kubectl port-forward svc/pgadmin-service 8080:80 -n your-namespace
-        ```
-
+  
 
