@@ -1,15 +1,27 @@
 grafana:
   persistence:
     enabled: true
+    type: sts
+    storageClassName: "gp3-storage"
+    accessModes:
+      - ReadWriteOnce
     size: 1Gi
   adminPassword: "1234"  
+
 
 prometheus:
   prometheusSpec:
     storageSpec:
       volumeClaimTemplate:
+        metadata:
+          name: prometheus-pvc  # 👈 Add a name for clarity
         spec:
-          accessModes: ["ReadWriteOnce"]
+          storageClassName: gp3-storage
+          accessModes:
+            - ReadWriteOnce
           resources:
             requests:
               storage: 1Gi
+
+alertmanager: # Disabling alertmanager because of the number of pods exceeded 17
+  enabled: false
