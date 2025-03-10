@@ -46,9 +46,9 @@ This project deploys the following components:
 <table>
   <tr>
     <td><img src="./resources/k8s-app-eks.jpg" alt="Setup" width="200"></td>
-    <td><img src="./resources/grafana_eks.jpg" alt="Setup" width="200"></td>
-    <td><img src="./resources/metrics_k8s-app.jpg" alt="Setup" width="200"></td>
-    <td><img src="./resources/pg_admin.jpg" alt="Setup" width="200"></td>
+    <td><img src="./resources/grafana-postgres.jpg" alt="Setup" width="200"></td>
+    <td><img src="./resources/grafana-metrics.jpg" alt="Setup" width="200"></td>
+    <td><img src="./resources/eks-cluster.jpg" alt="Setup" width="200"></td>
   </tr>
 </table>
 ### How to Run
