@@ -4,12 +4,12 @@ metadata:
   name: k8s-grafana-ingress
   namespace: prometheus-grafana-k8s
   annotations:
-    alb.ingress.kubernetes.io/scheme: internet-facing  # or "internal" if needed
+    alb.ingress.kubernetes.io/scheme: internet-facing  # "internal" if needed
     alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/group.name: "grafana-group"  # Optional grouping
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    alb.ingress.kubernetes.io/group.name: grafana-ingress-group  # Ensures a unique ALB
 spec:
-  ingressClassName: alb  # Set ALB as the ingress class
+  ingressClassName: alb
   rules:
     - http:
         paths:
@@ -17,6 +17,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: grafana-service  # Ensure this matches your service
+                name: k8s-kube-prom-stack-grafana
                 port:
                   number: 80
