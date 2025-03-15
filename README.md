@@ -453,10 +453,11 @@ This load balancer is **not** managed by Terraform and must be deleted manually.
   ```bash
   aws ssm start-session --target i-xxxxxxxxxxxxxxxxx
   kubectl port-forward svc/pgadmin-service 8080:80 -n your-namespace
-  
+  ```
 
 
 10. **Clean up:**
+  ```bash
   Delete the stack created on cloudformation
   Delete the load balancers
   Delete the target groups
@@ -465,6 +466,6 @@ This load balancer is **not** managed by Terraform and must be deleted manually.
   This process takes a lot of time so you can manually delete some resources to speed it up
   Destroy infrastructure:
   $ terraform destroy -auto-approve
-
+  ```
 
 
