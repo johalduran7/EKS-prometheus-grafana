@@ -457,8 +457,14 @@ This load balancer is **not** managed by Terraform and must be deleted manually.
 
 
 10. **Clean up:**
+  Delete the stack created on cloudformation
+  Delete the load balancers
+  Delete the target groups
+  Delete security groups created by K8S and not tracked by Terraform
+  Delete the volumes
+  This process takes a lot of time so you can manually delete some resources to speed it up
   Destroy infrastructure:
   $ terraform destroy -auto-approve
 
-  
+
 
