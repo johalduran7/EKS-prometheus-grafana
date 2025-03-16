@@ -86,8 +86,11 @@ This project deploys the following components:
         ```bash
     	  kubectl config current-context
         ```
-    	- Add your EKS without removing minikube 
-    		$ aws eks update-kubeconfig --region your-region --name your-cluster-name 
+    	- Add your EKS without removing minikube: 
+        ```bash
+    		$ aws eks update-kubeconfig --region your-region --name your-cluster-name
+        ```
+        
         ```bash
     		aws eks update-kubeconfig --region us-east-1 --name eks-cluster
         ```
