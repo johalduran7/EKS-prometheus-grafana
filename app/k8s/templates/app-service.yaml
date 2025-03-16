@@ -13,5 +13,3 @@ spec:
       protocol: TCP
       port: 80 # This is the service port (what clients use to talk to the service)
       targetPort: 3000 # This is the container port (the port inside your pod/app)
-  type: NodePort
-  nodePort: 32442   # Specify a NodePort in a valid range (30000-32767)
