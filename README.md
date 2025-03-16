@@ -509,6 +509,111 @@ This load balancer is **not** managed by Terraform and must be deleted manually.
   ```
 
 ## 11. Deploying ArgoCD
+  - Create a namespace:
+    ```bash 
+  	kubectl create namespace argocd
+    ```
+  - Install ArgoCD:
+    ```bash
+  	kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml -n argocd
+    ```
+  - Expose ArgoCD GUI.
+    ```bash
+  	kubectl port-forward svc/argocd-server 9091:80 -n argocd
+    ```
+  	- via Service Classic Load Balancer:
+      ```bash
+      $ cat ArgoCD/argocd-service-lb.yaml
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: argocd-server-lb
+        namespace: argocd
+        labels:
+          app: argocd-server-lb
+      spec:
+        selector:
+          app.kubernetes.io/name: argocd-server  # The selector, it uses the service to know which pod to send the traffic to
+  			  ports:
+  			  - name: http
+  			    port: 80
+  			    protocol: TCP
+  			    targetPort: 8080
+  			  - name: https
+  			    port: 443
+  			    protocol: TCP
+  			    targetPort: 8080
+  			  type: LoadBalancer
+      ```
+  	- deploy svc:
+     ```bash
+  		kubectl apply -f ArgoCD/argocd-service-lb.yaml
+     ```
+  	- access on https (e.g.):
+  		https://aa3933c344bce427ea85ed2acedc6df7-1216971548.us-east-1.elb.amazonaws.com/
+  - get the initial Admin password:
+    ```bash
+  	kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 --decode
+    ```
+  	e.g.:  admin/sQdWUM69Wd7W2nSh
+  - Configure the NodeJS app for argocd:
+  	- apply changes:
+     ```bash
+  		kubectl apply -f ArgoCD/nodejs-app.yaml -n argocd
+     ```
+  - Check that the Application is out of sync:
+    ```bash
+  	$ kubectl get Applications -n argocd
+  	NAME         SYNC STATUS   HEALTH STATUS
+  	nodejs-app   OutOfSync     Progressing
+    ```
+  - ArgoCD will try to sync with the repo but it won't be able to pull the latest image because of 
+  lack of permissions. Let's set up the permissions:
+
+  	- Create the policy (terraform code includes it):
+      ```bash
+  		resource "aws_iam_policy" "ecr_readonly" {
+  		  name        = "ECRReadOnlyPolicy"
+  		  description = "Allows read-only access to ECR repositories"
+  		  policy = jsonencode({
+  		    Version = "2012-10-17"
+  		    Statement = [
+  		      {
+  		        Effect   = "Allow"
+  		        Action   = [
+  		          "ecr:GetDownloadUrlForLayer",
+  		          "ecr:BatchGetImage",
+  		          "ecr:GetAuthorizationToken"
+  		        ]
+  		        Resource = "*"
+  		      }
+  		    ]
+  		  })
+  		}
+      ```
+  	- Attach the policy to ArgoCD's serviceaccount:
+     ```bash
+  		eksctl create iamserviceaccount \
+      --name argocd-sa \
+      --namespace argocd \
+      --cluster eks-cluster \
+      --attach-policy-arn arn:aws:iam::948586925757:policy/ECRReadOnlyPolicy \
+      --approve
+     ```
+  	- Patch the argocd deployment:
+     ```bash
+  	 kubectl patch deployment argocd-repo-server -n argocd --type='json' -p='[{"op": "add", "path": "/spec/template/spec/serviceAccountName", "value": "argocd-sa"}]'
+     ```
+  - Whenever the tag changes in the manifest, for instance, when CI pipeline pushes a new tag to ECR and updates the manifest of the app, ArgoCD reads it every 3 minutes and shows the changes in Differ, then you can either automatically or manually sync rollout the new tag:
+    ```bash
+  	grep -A4 'image:' app/k8s/values.yaml 
+  	image:
+  	  repository: 948586925757.dkr.ecr.us-east-1.amazonaws.com/k8s-app 
+  	  tag: "1.1.1"
+  	  sspullPolicy: IfNotPresent
+    ```
+  	- To push a new image, use the terraform_ecr IaC
+   
 ![Setup](./resources/argocd_1.4.jpg)
 
 
