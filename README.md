@@ -380,7 +380,6 @@ This project deploys the following components:
     ```
     You can leverage Loki to visualize the metrics or logs from the app
 
-    ![Setup](./resources/metrics_k8s-app.jpg)
     
 ## 10. Access Resources
 
@@ -418,7 +417,7 @@ This load balancer is **not** managed by Terraform and must be deleted manually.
   ```
   http://adbef8db6d3ea4370914e2c22989771a-1791137444.us-east-1.elb.amazonaws.com:80
   ```
-
+![Setup](./resources/k8s-app-eks.jpg)
 ### 3. Exposing with an Ingress Controller
 
 - **Create an IAM Role for the ServiceAccount** (different from the cluster IAM role):
@@ -485,7 +484,7 @@ This load balancer is **not** managed by Terraform and must be deleted manually.
   ```
   http://k8s-grafanaingressgro-12ecc227c1-2111689879.us-east-1.elb.amazonaws.com
   ```
-
+![Setup](./resources/grafana-postgres.jpg)
 ### 4. Using AWS SSM Port Forwarding
 
 **Note:** The SSM Agent must be installed on the EC2 instance.
@@ -508,5 +507,9 @@ This load balancer is **not** managed by Terraform and must be deleted manually.
   Destroy infrastructure:
   $ terraform destroy -auto-approve
   ```
+
+## 11. Deploying ArgoCD
+![Setup](./resources/argocd_1.4.jpg)
+
 
 
