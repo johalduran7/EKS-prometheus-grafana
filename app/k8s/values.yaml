@@ -4,7 +4,7 @@ replicaCount: 1
 
 image:
   repository: 948586925757.dkr.ecr.us-east-1.amazonaws.com/k8s-app 
-  tag: "lastest"
+  tag: "1.1.1"
   sspullPolicy: IfNotPresent
 
 container:
