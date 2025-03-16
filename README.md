@@ -468,7 +468,7 @@ This load balancer is **not** managed by Terraform and must be deleted manually.
   ```
   **Note:** The `AWSLoadBalancerControllerIAMPolicy` was already created via Terraform.
 
-- This command will create a CloudFormation stack and an IAM role:
+- This command will create a CloudFormation stack and an IAM role. Something along the following lines:
   ```bash
   eksctl-eks-cluster-addon-iamserviceaccount-ku-Role1-qrjksIYLp300
   ```
