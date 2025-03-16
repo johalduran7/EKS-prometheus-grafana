@@ -307,7 +307,6 @@ This project deploys the following components:
     ```
     Now, you add a nice dashboard from https://grafana.com/grafana/dashboards/455-postgres-overview/
 
-    ![Setup](./resources/grafana_k8s.jpg)
 
     **Add ServiceMonitor for Node.js App:**
     The metrics exported by the application really depends on you. I added metrics to count the total of requests and the count of type of requests to DB. This may be meaningless but it's out of the scope of this project.
