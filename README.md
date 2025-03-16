@@ -422,7 +422,7 @@ This project deploys the following components:
 
 There are four ways to access resources in the EKS cluster:
 
-### 1. Port Forward to Access Locally
+### 1. Port Forward to Access Locally - Pgadmin
 Just like on Minikube, you can use port forwarding:
 ```bash
 kubectl port-forward svc/<app-service> <external-port>:<servicePort> -n <namespace>
@@ -430,7 +430,7 @@ kubectl port-forward svc/pgadmin-service 9091:80 -n prometheus-grafana-k8s
 ```
 Access the service on `localhost:9091`.
 
-### 2. Exposing with a LoadBalancer Service (Public Access)
+### 2. Exposing with a LoadBalancer Service (Public Access) - NodeJS App
 **IMPORTANT NOTE:** For every service of type `LoadBalancer`, a classic load balancer will be created on AWS. For testing purposes, exposing only one service is recommended. The application itself was chosen.
 
 This load balancer is **not** managed by Terraform and must be deleted manually.
@@ -455,7 +455,7 @@ This load balancer is **not** managed by Terraform and must be deleted manually.
   http://adbef8db6d3ea4370914e2c22989771a-1791137444.us-east-1.elb.amazonaws.com:80
   ```
 ![Setup](./resources/k8s-app-eks.jpg)
-### 3. Exposing with an Ingress Controller
+### 3. Exposing with an Ingress Controller - Grafana
 
 - **Create an IAM Role for the ServiceAccount** (different from the cluster IAM role):
   ```bash
@@ -522,7 +522,7 @@ This load balancer is **not** managed by Terraform and must be deleted manually.
   http://k8s-grafanaingressgro-12ecc227c1-2111689879.us-east-1.elb.amazonaws.com
   ```
 ![Setup](./resources/grafana-postgres.jpg)
-### 4. Using AWS SSM Port Forwarding
+### 4. Using AWS SSM Port Forwarding 
 
 **Note:** The SSM Agent must be installed on the EC2 instance.
 
