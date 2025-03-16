@@ -43,12 +43,14 @@ This project deploys the following components:
 -   **PostgreSQL:** A robust relational database management system used to persist image data.
 -   **Prometheus:** A powerful monitoring and alerting toolkit that collects metrics from the deployed applications and infrastructure.
 -   **Grafana:** A data visualization and monitoring tool that provides dashboards to visualize metrics collected by Prometheus.
+-   **ArgoCD:** Continuous Deployment implementation for NodeJS App.
 <table>
   <tr>
     <td><img src="./resources/k8s-app-eks.jpg" alt="Setup" width="200"></td>
     <td><img src="./resources/grafana-postgres.jpg" alt="Setup" width="200"></td>
     <td><img src="./resources/grafana-metrics.jpg" alt="Setup" width="200"></td>
     <td><img src="./resources/eks-cluster.jpg" alt="Setup" width="200"></td>
+    <td><img src="./resources/argocd_1.4.jpg" alt="Setup" width="200"></td>
   </tr>
 </table>
 
@@ -68,17 +70,38 @@ This project deploys the following components:
           - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
       - Networking:
         - default VPC used, for simplicity
-        - NOTE: there should be at least 2 AZs to guarantee fault tolerance.
+        - NOTE: There should be at least 2 AZs to guarantee fault tolerance.
       - aws_eks_clustr.eks
       - aws_eks_node_group.eks_nodes
       
-    - NOTE: it takes up to 15m
+    - NOTE: It takes up to 15m
     - the eks_node_role should allow the node to assum the roles:
       - "ec2.amazonaws.com","eks.amazonaws.com"
     - go to the repository ./terraform_eks and apply the changes:
         ```bash
         terraform apply -auto-approve
         ```
+    - Configure Kubectl to track EKS and not minikube:
+    	- confirm the current context:
+        ```bash
+    	  kubectl config current-context
+        ```
+    	- Add your EKS without removing minikube
+    		$ aws eks update-kubeconfig --region your-region --name your-cluster-name
+        ```bash
+    		aws eks update-kubeconfig --region us-east-1 --name eks-cluster
+        ```
+    	- verify that the cluster is connected
+        ```bash
+        john@john-VirtualBox:~/EKS-prometheus-grafana/terraform_eks$ kubectl config get-contexts 
+        CURRENT   NAME                                                     CLUSTER                                                  AUTHINFO                                                 NAMESPACE
+        *         arn:aws:eks:us-east-1:<ACCOUNT_ID>:cluster/eks-cluster   arn:aws:eks:us-east-1:<ACCOUNT_ID>:cluster/eks-cluster   arn:aws:eks:us-east-1:<ACCOUNT_ID>:cluster/eks-cluster   
+        john@john-VirtualBox:~/EKS-prometheus-grafana/terraform_eks$ kubectl get nodes
+        NAME                            STATUS   ROLES    AGE   VERSION
+        ip-172-31-35-173.ec2.internal   Ready    <none>   10m   v1.32.1-eks-5d632ec
+        ```
+    		This is the private IP address of your EC2
+  
     - Granting IAM user permissions to see EKS resources
       - Your IAM user won't have access to EKS resources even if it's the admin. This is because we have to add the user to the configmap aws-auth in the kube-system namespace.
       - current config of the auth-file
@@ -107,7 +130,25 @@ This project deploys the following components:
 
       - built-in Kubernetes RBAC (Role-Based Access Control)
 
-
+    - Install eksctl (linux)
+      ```bash
+    	curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+    	sudo mv /tmp/eksctl /usr/local/bin
+      eksctl version
+    		0.205.0
+      ```
+    - Create IAM OIDC provider:
+      ```bash
+    	eksctl utils associate-iam-oidc-provider --region us-east-1 --cluster eks-cluster --approve
+      ```
+    - The EC2 instance sets IMDSv2 as required, this will prevent the aws-load-balancer-controller pods from extracting metadata such as the vpc_id, so you have to set it to optional:
+      ```bash
+    	$ aws ec2 modify-instance-metadata-options \
+    	--instance-id i-04b7232997b2a6c27 \
+    	--http-endpoint enabled \
+    	--http-tokens optional
+      ```
+    	For any custom setting, you have to create a launch_template for the eks node group.
 
 2.  **Prepare the Node.js Application Image:**
 
