@@ -166,6 +166,8 @@ app.get('/', async (req, res) => {
           `).join('')}
         </tbody>
       </table>
+      <h2>🖼️ ArgoCD Deployment</h2>
+      <img src="https://raw.githubusercontent.com/johalduran7/EKS-prometheus-grafana/master/resources/Argo_CD.png" alt="ArgoCD Deployment" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);" />
     </body>
     </html>
   `);
