@@ -1,6 +1,6 @@
 # AWS Elastic Kubernetes Service Project
 
-This project leverages the stack set up on minikube in the project https://github.com/johalduran7/prometheus-grafana-k8s
+This project leverages the stack set up on minikube in the project https://github.com/johalduran7/prometheus-grafana-k8s and provisions ArgoCD.
 
 This is intended to show how to deploy the same stack on EKS and the provisioning via Terraform.
 
