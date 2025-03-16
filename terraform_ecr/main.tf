@@ -45,10 +45,10 @@ resource "null_resource" "build_and_push_k8s-app-image" {
       aws ecr get-login-password --region ${var.aws_region} | docker login --username AWS --password-stdin ${aws_ecr_repository.k8s-app.repository_url}
 
       # Build the Docker image
-      docker build -t ${aws_ecr_repository.k8s-app.repository_url}:2.0.0 -f ../app//Dockerfile ../app
+      docker build -t ${aws_ecr_repository.k8s-app.repository_url}:2.1.0 -f ../app//Dockerfile ../app
 
       # Push the Docker image to ECR
-      docker push ${aws_ecr_repository.k8s-app.repository_url}:2.0.0
+      docker push ${aws_ecr_repository.k8s-app.repository_url}:2.1.0
     EOT
   }
 
