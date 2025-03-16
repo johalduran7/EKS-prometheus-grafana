@@ -147,7 +147,7 @@ This project deploys the following components:
       ```
     - The EC2 instance sets IMDSv2 as required, this will prevent the aws-load-balancer-controller pods from extracting metadata such as the vpc_id, so you have to set it to optional:
       ```bash
-    	$ aws ec2 modify-instance-metadata-options \
+    	aws ec2 modify-instance-metadata-options \
     	--instance-id i-04b7232997b2a6c27 \
     	--http-endpoint enabled \
     	--http-tokens optional
