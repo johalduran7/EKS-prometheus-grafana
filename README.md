@@ -591,7 +591,7 @@ This load balancer is **not** managed by Terraform and must be deleted manually.
   		  })
   		}
       ```
-  	- Attach the policy to ArgoCD's serviceaccount:
+  	- Attach the policy to ArgoCD's ServiceAccount:
      ```bash
   		eksctl create iamserviceaccount \
       --name argocd-sa \
@@ -613,8 +613,27 @@ This load balancer is **not** managed by Terraform and must be deleted manually.
   	  sspullPolicy: IfNotPresent
     ```
   	- To push a new image, use the terraform_ecr IaC
+     
+ - Releasing via ArgoCD
+   - The application will show the current version 1.1.2
+     ![Setup](./resources/argocd_1.1.jpg)
+     ![Setup](./resources/argocd_1.2.jpg)
+     
+   - When releasing a new tag and changing the manifest with a new tag of the image, ArgoCD will detect the changes in the repository. The status is OutOfSync:
+     ![Setup](./resources/argocd_1.3.jpg)
+     
+   - Finally, depending on the config that you have for your Application, it can automatically or manually release the new tag and pull the image:
+     ![Setup](./resources/argocd_1.4.jpg)
+     ![Setup](./resources/argocd_1.5.jpg)
+  
+ 
+      
+
+ 
+     
+     
    
-![Setup](./resources/argocd_1.4.jpg)
+
 
 
 
