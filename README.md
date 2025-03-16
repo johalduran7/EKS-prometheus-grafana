@@ -129,10 +129,34 @@ This project deploys the following components:
         ```
       
       - Adding my AWS user to mapUsers:
-        - 
+        ```bash
           $ kubectl edit configmap aws-auth -n kube-system
-
-      - built-in Kubernetes RBAC (Role-Based Access Control)
+          apiVersion: v1
+          data:
+            mapRoles: |
+              - groups:
+                - system:bootstrappers
+                - system:nodes
+                rolearn: arn:aws:I am::<ACCOUNT_ID>:role/eks-node-role
+                username: system:node:{{EC2PrivateDNSName}}
+            mapUsers: |
+              - userarn: arn:aws:iam::<ACCOUNT_ID>:user/john
+                username: john
+                groups:
+                  - system:masters
+              - userarn: arn:aws:iam::<ACCOUNT_ID>:root
+                username: root-admin
+                groups:
+                  - system:masters
+          kind: ConfigMap
+          metadata:
+            creationTimestamp: "2025-03-09T13:06:05Z"
+            name: aws-auth
+            namespace: kube-system
+            resourceVersion: "6684"
+            uid: f5476462-b4dd-4ec5-95af-f7419d2d5525
+        ```
+      -  This will add your AWS user to the built-in Kubernetes RBAC (Role-Based Access Control)
 
     - Install eksctl (linux)
       ```bash
