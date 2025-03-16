@@ -83,17 +83,17 @@ This project deploys the following components:
         ```
     - Configure Kubectl to track EKS and not minikube:
     	- confirm the current context: 
-        ```bash
-    	  kubectl config current-context
-        ```
+          ```bash
+      	  kubectl config current-context
+          ```
     	- Add your EKS without removing minikube: 
-        ```bash
-    		$ aws eks update-kubeconfig --region your-region --name your-cluster-name
-        ```
-        
-        ```bash
-    		aws eks update-kubeconfig --region us-east-1 --name eks-cluster
-        ```
+          ```bash
+      		aws eks update-kubeconfig --region your-region --name your-cluster-name
+          ```
+          
+          ```bash
+      		aws eks update-kubeconfig --region us-east-1 --name eks-cluster
+          ```
     	- verify that the cluster is connected
         ```bash
         john@john-VirtualBox:~/EKS-prometheus-grafana/terraform_eks$ kubectl config get-contexts 
@@ -103,7 +103,8 @@ This project deploys the following components:
         NAME                            STATUS   ROLES    AGE   VERSION
         ip-172-31-35-173.ec2.internal   Ready    <none>   10m   v1.32.1-eks-5d632ec
         ```
-    		This is the private IP address of your EC2
+        
+    This is the private IP address of your EC2
   
     - Granting IAM user permissions to see EKS resources
       - Your IAM user won't have access to EKS resources even if it's the admin. This is because we have to add the user to the configmap aws-auth in the kube-system namespace.
