@@ -201,3 +201,26 @@ resource "aws_iam_policy" "eks_lb_controller_policy" {
     ]
   })
 }
+
+
+#---- ECRReadOnlyPolicy to be attached by the ServiceAccount
+
+resource "aws_iam_policy" "ecr_readonly" {
+  name        = "ECRReadOnlyPolicy"
+  description = "Allows read-only access to ECR repositories"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = [
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:GetAuthorizationToken"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
