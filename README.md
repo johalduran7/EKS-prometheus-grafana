@@ -160,8 +160,8 @@ This project deploys the following components:
           ```bash
           kubectl patch configmap aws-auth -n kube-system --type merge -p '{
             "data": {
-              "mapRoles": "- groups:\n  - system:bootstrappers\n  - system:nodes\n  rolearn: arn:aws:iam::948586925757:role/eks-node-role\n  username: system:node:{{EC2PrivateDNSName}}\n",
-              "mapUsers": "- userarn: arn:aws:iam::948586925757:user/john\n  username: john\n  groups:\n    - system:masters\n- userarn: arn:aws:iam::948586925757:root\n  username: root-admin\n  groups:\n    - system:masters\n"
+              "mapRoles": "- groups:\n  - system:bootstrappers\n  - system:nodes\n  rolearn: arn:aws:iam::<ACCOUNT_ID>:role/eks-node-role\n  username: system:node:{{EC2PrivateDNSName}}\n",
+              "mapUsers": "- userarn: arn:aws:iam::<ACCOUNT_ID>:user/john\n  username: john\n  groups:\n    - system:masters\n- userarn: arn:aws:iam::<ACCOUNT_ID>:root\n  username: root-admin\n  groups:\n    - system:masters\n"
             }
           }'
           ```
