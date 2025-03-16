@@ -51,9 +51,10 @@ This project deploys the following components:
     <td><img src="./resources/eks-cluster.jpg" alt="Setup" width="200"></td>
   </tr>
 </table>
+
 ### How to Run
 
-1.  **## EKS Setup:**
+1.  **EKS Setup:**
   - Deploying EKS using terraform.
     - reference: https://docs.aws.amazon.com/eks/latest/userguide/getting-started-console.html
     - Explanation of the resources deployed:
