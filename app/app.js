@@ -138,7 +138,7 @@ app.get('/', async (req, res) => {
       </script>
     </head>
     <body>
-      <h1>🚀 John Durán's K8s-App Demo</h1>
+      <h1>🚀 John Durán's K8s-App and ArgoCD Demo</h1>
 
       <form action="/submit" method="POST">
         <input type="text" name="name" placeholder="Name" required />

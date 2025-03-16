@@ -17,5 +17,5 @@ spec:
     namespace: prometheus-grafana-k8s
   syncPolicy:
     automated:
-      prune: true
-      selfHeal: true
+      prune: true  # Automatically delete or
+      selfHeal: true # Fix any probelms

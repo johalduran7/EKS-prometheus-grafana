@@ -19,7 +19,7 @@ resource "aws_ecr_lifecycle_policy" "ecr_k8s-app-policy" {
       "selection": {
         "tagStatus": "any",
         "countType": "imageCountMoreThan",
-        "countNumber": 1
+        "countNumber": 2
       },
       "action": {
         "type": "expire"
@@ -45,10 +45,10 @@ resource "null_resource" "build_and_push_k8s-app-image" {
       aws ecr get-login-password --region ${var.aws_region} | docker login --username AWS --password-stdin ${aws_ecr_repository.k8s-app.repository_url}
 
       # Build the Docker image
-      docker build -t ${aws_ecr_repository.k8s-app.repository_url}:latest -f ../app//Dockerfile ../app
+      docker build -t ${aws_ecr_repository.k8s-app.repository_url}:1.1.1 -f ../app//Dockerfile ../app
 
       # Push the Docker image to ECR
-      docker push ${aws_ecr_repository.k8s-app.repository_url}:latest
+      docker push ${aws_ecr_repository.k8s-app.repository_url}:1.1.1
     EOT
   }
 
