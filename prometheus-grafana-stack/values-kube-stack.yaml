@@ -14,7 +14,7 @@ prometheus:
     storageSpec:
       volumeClaimTemplate:
         metadata:
-          name: prometheus-pvc  # 👈 Add a name for clarity
+          name: prometheus-pvc 
         spec:
           storageClassName: gp3-storage
           accessModes:
