@@ -1,4 +1,4 @@
-# AWS Elastic Kubernetes Service Project
+# AWS Elastic Kubernetes Stack and ArgoCD Project
 
 This project leverages the stack set up on minikube in the project https://github.com/johalduran7/prometheus-grafana-k8s and provisions ArgoCD.
 
