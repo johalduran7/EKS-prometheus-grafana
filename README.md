@@ -545,7 +545,7 @@ This load balancer is **not** managed by Terraform and must be deleted manually.
   $ terraform destroy -auto-approve
   ```
 
-## 11. Deploying ArgoCD
+## 11. Deploying ArgoCD <img src="https://github.com/johalduran7/EKS-prometheus-grafana/blob/master/resources/Argo_CD.png" width="35"> 
   - Create a namespace:
     ```bash 
   	kubectl create namespace argocd
