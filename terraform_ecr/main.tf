@@ -19,7 +19,7 @@ resource "aws_ecr_lifecycle_policy" "ecr_k8s-app-policy" {
       "selection": {
         "tagStatus": "any",
         "countType": "imageCountMoreThan",
-        "countNumber": 2
+        "countNumber": 1
       },
       "action": {
         "type": "expire"
