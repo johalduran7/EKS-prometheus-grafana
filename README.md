@@ -546,6 +546,8 @@ This load balancer is **not** managed by Terraform and must be deleted manually.
   ```
 
 ## 11. Deploying ArgoCD <img src="https://github.com/johalduran7/EKS-prometheus-grafana/blob/master/resources/Argo_CD.png" width="35"> 
+  - This is intended to show the GitOps tool for Continuous Deployment. It can be integrated with a CI/Delivery implementation to set up a complete CI/CD pipeline. I recommend deploying the stack without Grafana and Prometheus because ArgoCD takes up the majority of the resources of the Node, and we don't want to scale up the EC2 because It'd be much more expensive. For testing purposes, NodeJS+Postgres is enough to test ArgoCD.
+    
   - Create a namespace:
     ```bash 
   	kubectl create namespace argocd
