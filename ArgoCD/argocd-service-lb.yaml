@@ -5,6 +5,8 @@ metadata:
   namespace: argocd
   labels:
     app: argocd-server-lb
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
 spec:
   selector:
     app.kubernetes.io/name: argocd-server  # The selector, it uses the service to know which pod to send the traffic to
