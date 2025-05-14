@@ -637,7 +637,7 @@ This load balancer is **not** managed by Terraform and must be deleted manually.
       --name argocd-sa \
       --namespace argocd \
       --cluster eks-cluster \
-      --attach-policy-arn arn:aws:iam::948586925757:policy/ECRReadOnlyPolicy \
+      --attach-policy-arn arn:aws:iam::<AWS_ACCOUNT_ID>:policy/ECRReadOnlyPolicy \
       --approve
      ```
   	- Patch the argocd deployment:
@@ -648,7 +648,7 @@ This load balancer is **not** managed by Terraform and must be deleted manually.
     ```bash
   	grep -A4 'image:' app/k8s/values.yaml 
   	image:
-  	  repository: 948586925757.dkr.ecr.us-east-1.amazonaws.com/k8s-app 
+  	  repository: <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/k8s-app 
   	  tag: "1.1.1"
   	  sspullPolicy: IfNotPresent
     ```
