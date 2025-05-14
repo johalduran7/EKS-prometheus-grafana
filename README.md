@@ -213,7 +213,7 @@ This project deploys the following components:
     4.  Apply Terraform to push the Docker image to ECR:
 
         ```bash
-        cd ./terraform && terraform init && terraform apply -auto-approve
+        cd ./terraform_ecr && terraform init && terraform apply -auto-approve
         ```
 
         Obtain the repository name from the Terraform output and update the `repository` value in `./app/k8s/values.override.yaml`. Note that `values.yaml` is a placeholder and should not be modified.
