@@ -40,7 +40,7 @@ This is intended to show how to deploy the same stack on EKS and the provisionin
 
 This project deploys the following components:
 
--   **Node.js App:** A web application that allows users to upload and retrieve images, utilizing a PostgreSQL database for storage. NOTE: The scope of the project doesn't comprise development skills about the application itself. This is intended to show the configuration of Grafana and Prometheus as well as the configuration to scrape metrics. 
+-   **Node.js App:** A web application that allows users to store basic information in a table, utilizing a PostgreSQL database for storage. NOTE: The scope of the project doesn't comprise development skills about the application itself. This is intended to show the configuration of Grafana and Prometheus as well as the configuration to scrape metrics. 
 -   **PostgreSQL:** A robust relational database management system used to persist image data.
 -   **Prometheus:** A powerful monitoring and alerting toolkit that collects metrics from the deployed applications and infrastructure.
 -   **Grafana:** A data visualization and monitoring tool that provides dashboards to visualize metrics collected by Prometheus.
