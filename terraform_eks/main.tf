@@ -32,6 +32,9 @@ resource "aws_eks_cluster" "eks" {
   vpc_config {
     subnet_ids = data.aws_subnets.eks_subnet.ids
   }
+  tags = {
+    "Terraform" = "yes"
+  }
   enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
   depends_on                = [aws_cloudwatch_log_group.eks_cluster_logs]
 }

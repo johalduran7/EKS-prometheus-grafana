@@ -249,9 +249,10 @@ This project deploys the following components:
     If your Node.js application image is hosted on ECR, authenticate with the registry. This example uses the AWS CLI for simplicity:
 
     ```bash
+    AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
     aws ecr get-login-password --region us-east-1 | \
     kubectl create secret docker-registry ecr-registry-credentials \
-    --docker-server=<AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com \
+    --docker-server=$AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com \
     --docker-username=AWS --docker-password=$(aws ecr get-login-password --region us-east-1) \
     -n prometheus-grafana-k8s
     ```
