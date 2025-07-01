@@ -294,6 +294,8 @@ This project deploys the following components:
 
     Just in case you have to update the app. You can skip this step. When you make changes to the Node.js application code (`app.js`), rebuild the Docker image and apply the changes using Terraform. Then, restart the deployment:
 
+    NOTE: if the imagePullPolicy in the deployment is set to ifNotPresent, it won't pull the image unless you use another tag or set it to Always
+
     ```bash
     kubectl rollout restart deployment k8s-app -n prometheus-grafana-k8s
     ```

@@ -18,6 +18,7 @@ spec:
       containers:
         - name: k8s-app
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: "{{ .Values.image.pullPolicy }}"
           ports:
             #- containerPort: {{ .Values.container.targetPort }}
             - name: metrics  # This must match the PodMonitor "port" field
