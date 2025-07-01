@@ -463,11 +463,12 @@ This load balancer is **not** managed by Terraform and must be deleted manually.
 
 - **Create an IAM Role for the ServiceAccount** (different from the cluster IAM role):
   ```bash
+  AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
   eksctl create iamserviceaccount \
     --cluster eks-cluster \
     --namespace kube-system \
     --name aws-load-balancer-controller \
-    --attach-policy-arn arn:aws:iam::ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy \
+    --attach-policy-arn arn:aws:iam::$AWS_ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy \
     --approve
   ```
   **Note:** The `AWSLoadBalancerControllerIAMPolicy` was already created via Terraform.
