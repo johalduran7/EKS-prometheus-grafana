@@ -499,7 +499,8 @@ This load balancer is **not** managed by Terraform and must be deleted manually.
 
 - **Tag subnets for ALB discovery**:
   ```bash
-  aws ec2 create-tags --resources subnet-f5c09ab8 subnet-9631a6c9 \
+  read -a subnets <<< "$(aws eks describe-cluster --name eks-cluster --query "cluster.resourcesVpcConfig.subnetIds" --output text)"
+  aws ec2 create-tags --resources "${subnets[@]}" \
     --tags Key=kubernetes.io/role/elb,Value=1
   ```
 
