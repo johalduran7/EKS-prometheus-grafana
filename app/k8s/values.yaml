@@ -5,7 +5,7 @@ replicaCount: 1
 image:
   repository: 948586925757.dkr.ecr.us-east-1.amazonaws.com/k8s-app 
   tag: "1.1.2"
-  sspullPolicy: IfNotPresent
+  pullPolicy: IfNotPresent
 
 container:
   targetPort: "3000"
